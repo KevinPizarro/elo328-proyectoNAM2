@@ -10,6 +10,9 @@ import numpy as np
 import cv2 as cv
 import os
 import csv
+from sklearn.svm import SVR
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 # Directorio donde se encuentra este Programa idealmente
 # Modificar para cada usuario
@@ -19,14 +22,39 @@ PATH = "."
 CAM_NUMBER = 0
 
 
+# funcion que me entrena el modelo del SVR creando el modelo regressor
+def creat_SVR_FUNCTION():
+    x = []
+    y = []
+    f = open(PATH+'/spaO2_dataset.csv', 'r')
+    reader = csv.reader(f)
+    for line in reader:
+        if ( line != [] ):
+            line = line[0].split()
+            c1 = float(line[0])
+            c2 = float(line[1])
+            x.append(c1)
+            y.append(c2)
+    f.close()
+    x = np.array(x).reshape(-1,1)
+    y = np.array(y)
+    regressor = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
+    regressor.fit(x, y)
+    return regressor
+# funcion que recibe las componentes ac, dc y el regresor para aproximar la SpaO2
+def SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor):
+    RoR = (AC_R/DC_R)/(AC_B/DC_B)
+    SpaO2 = regressor.predict(np.array(RoR).reshape(-1,1))
+    return SpaO2
+
 # Crear una mascara de la mano (reconocimiento de la piel), en una region estatica.
 # Si el pixel pertenece a la RoI entonces lo añado al calculo del promedio por canal 
 def determinacion_threshold(frame):
     frame_YCrCb=cv.cvtColor(frame,cv.COLOR_BGR2YCR_CB)
     Y,Cr,Cb = cv.split(frame_YCrCb)
-    th_Cb , step1_Cb = cv.threshold(Cr,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
+    th_Cr , step1_Cr = cv.threshold(Cr,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
     kernel = np.ones((5,5), np.uint8) 
-    img_erosion = cv.erode(step1_Cb, kernel, iterations=1) 
+    img_erosion = cv.erode(step1_Cr, kernel, iterations=1) 
     img_dilation = cv.dilate(img_erosion, kernel, iterations=1)
     rows = img_dilation.shape[0]
     cols = img_dilation.shape[1]
@@ -46,7 +74,7 @@ def determinacion_threshold(frame):
 # Recibir la matriz de promedio del color RGB del pixel actual y los anteriores
 # concatenar estas matrices formando mi matriz A actualizada
 # formar las curvas temporales de R G B 
-def rPPG_extraction(A):
+def rPPG_extraction(A, regressor):
     #el valor de 100 fue arbitrario por nosotros al notar ruido de medicion
     #cuando no esta la mano
     if ( os.path.exists(PATH+'/Matris_A.csv')): #si existe
@@ -61,8 +89,6 @@ def rPPG_extraction(A):
         buffer_R = np.zeros(50)
         buffer_G = np.zeros(50)
         buffer_B = np.zeros(50)
-        RoR_max=4
-        RoR_min=1
         for line in reader:
             if ( line != [] ):
                 #print("iteracion ",i)
@@ -72,22 +98,28 @@ def rPPG_extraction(A):
                 buffer_B[i%50] = float(B)
                 if (i%50 == 0):                    
                     AC_R = np.amax(buffer_R) - np.amin(buffer_R)
-                    #AC_G = np.amax(buffer_G) - np.amin(buffer_G)
+                    AC_G = np.amax(buffer_G) - np.amin(buffer_G)
                     AC_B = np.amax(buffer_B) - np.amin(buffer_B)
                     DC_R = np.mean(buffer_R)
-                    #DC_G = np.mean(buffer_G)
+                    DC_G = np.mean(buffer_G)
                     DC_B = np.mean(buffer_B)
-                    RoR = (AC_R/DC_R)/(AC_B/DC_B)
-                    m = (70-100)/(RoR_max-RoR_min)
-                    n = 100 - m*RoR_min
-                    SpaO2 = n + m*RoR
-                    print("el valor de SPA_O2 es: ", SpaO2,"%\n")
+                    # RoR = (AC_R/DC_R)/(AC_B/DC_B)
+                    # m = (70-100)/(RoR_max-RoR_min)
+                    # n = 100 - m*RoR_min
+                    # SpaO2 = n + m*RoR
+                    SpaO2 = SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor)
+                    print("SPA_O2 = ", SpaO2,"%\n")
+                    
                 i=i+1
         f.close()
     return 1
 
+
 #-----------------------------------------------------------------------------#
 #----------------------Comienzo---de---programa-------------------------------#
+
+## Entrenar la svr
+regressor = creat_SVR_FUNCTION()
 # crear archivo .csv y en el caso que existe lo va a sobre-escribir
 f = open(PATH+'/Matris_A.csv', 'w+')
 f.close()
@@ -106,8 +138,8 @@ while True:
         print("Can't receive frame (stream end?). Exiting ...")
         break
     #intentar hacer una roi
-    roi_inicio = (int(width*0.1),int(height*0.1))
-    roi_fin =  (int(width*0.1+150),int(height*0.1+300))
+    roi_inicio = (int(width*0.1),int(height*0.1+150))
+    roi_fin =  (int(width*0.1+200),int(height*0.1+350))
     roi_color = (0,0,255)
     thickness = 2
     #se establece el rectangulo de la ROI
@@ -116,7 +148,7 @@ while True:
     roi_cropped = frame[roi_inicio[1]+thickness:roi_fin[1]-thickness,roi_inicio[0]+thickness:roi_fin[0]-thickness]
     step1 , A = determinacion_threshold(roi_cropped)
     #print(A); print("\n")
-    rPPG_extraction(A)    
+    rPPG_extraction(A,regressor)    
     # Display the resulting frame
     cv.imshow('frame rgb', frame)
     cv.imshow('step1', step1)
