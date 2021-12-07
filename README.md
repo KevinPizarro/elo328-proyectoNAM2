@@ -3,7 +3,7 @@
 Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de Respiración y Saturación de Oxígeno.
 
 # Opcion 1 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de PPG
-	-Comentar-
+	- Lo primero es obtener la region del rostro, para despues obtener la region de la frente y de la boca.
 
 # Opcion 2 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de rPPG y SVR
 	- Lo primero es obtener la region de interes en la mano, se plantea dejar la mano en un espacio en especifico delimitado.
