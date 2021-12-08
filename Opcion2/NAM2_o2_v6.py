@@ -5,8 +5,12 @@ Created on Thu Nov 11 17:31:40 2021
 @author: Gustavo Silva, Kevin Pizarro
 @objective: Make the code to predict de SPO2 and respiration curve using rPPG and SVG 
 """
-
+# import sys
+#from scipy import signal
+from scipy.signal import butter, lfilter
+import heartpy as hp
 import numpy as np
+#import matplotlib.pyplot as plt
 import cv2 as cv
 import os
 import csv
@@ -21,6 +25,79 @@ PATH = "."
 # Numero de la camara que esta utilizando
 CAM_NUMBER = 0
 
+
+def butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_lowpass(cutoff, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+# se crea la señal de pulso H
+def POS2(R_v,G_v,B_v):
+    l = 30
+    mean_rgb= np.array([R_v, G_v, B_v])
+    H = np.zeros(mean_rgb.shape[1])
+    #print("H shape", H.shape)
+    for t in range(0, 50):
+        if(t+l-1>0):
+            #t = 0
+            # Step 1: Spatial averaging
+            C = mean_rgb[:t+l-1,:]
+            #C = mean_rgb.T
+            #print("C shape", C.shape)
+            #print("t={0},t+l={1}".format(t,t+l))
+            
+            #Step 2 : Temporal normalization
+            mean_color = np.mean(C, axis=1)
+            #print("Mean color", mean_color)
+            
+            diag_mean_color = np.diag(mean_color)
+            #print("Diagonal",diag_mean_color)
+            
+            diag_mean_color_inv = np.linalg.pinv(diag_mean_color)
+            #print("Inverse",diag_mean_color_inv)
+            
+            Cn = (np.matmul(diag_mean_color_inv,C))
+            #print("Temporal normalization", Cn)
+            #print("Cn shape", Cn.shape)
+        
+            #Step 3: 
+            projection_matrix = np.array([[0,1,-1],[-2,1,1]])
+            #print("projection_matrix shape", projection_matrix.shape)
+            S = np.matmul(projection_matrix,Cn)
+            #print("S matrix",S)
+            #print("S shape", S.shape)
+    
+            #Step 4:
+            #2D signal to 1D signal
+            std = np.array([1,np.std(S[0,:])/np.std(S[1,:])])
+            #print("std shape", std.shape)
+            #print("std",std)
+            P = np.matmul(std,S)
+            #print("P shape", P.shape)
+            #print("P",P)
+    
+            #Step 5: Overlap-Adding
+            H = H +  (P-np.mean(P))/np.std(P)
+    # Setting standard filter requirements.
+    order = 8
+    fs = 30       
+    cutoff = 10
+    y = butter_lowpass_filter(H, cutoff, fs, order)
+    # figure=plt.figure()
+    # figure.clear()
+    # plt.plot(y)
+    working_data, measures = hp.process(y, fs, report_time=False) 
+    BPM = -1
+    if( not np.isnan(measures['breathingrate']) ):
+        BPM = measures['breathingrate']*60
+        #print('breathing rate is: %s Hz\n' %measures['breathingrate'])
+    return BPM
 
 # funcion que me entrena el modelo del SVR creando el modelo regressor
 def creat_SVR_FUNCTION():
@@ -74,9 +151,7 @@ def determinacion_threshold(frame):
 # Recibir la matriz de promedio del color RGB del pixel actual y los anteriores
 # concatenar estas matrices formando mi matriz A actualizada
 # formar las curvas temporales de R G B 
-def rPPG_extraction(A, regressor):
-    #el valor de 100 fue arbitrario por nosotros al notar ruido de medicion
-    #cuando no esta la mano
+def estimated_SPAO2(A, regressor):
     if ( os.path.exists(PATH+'/Matris_A.csv')): #si existe
         f = open(PATH+'/Matris_A.csv', 'a+')
         writer = csv.writer(f)
@@ -91,25 +166,25 @@ def rPPG_extraction(A, regressor):
         buffer_B = np.zeros(50)
         for line in reader:
             if ( line != [] ):
-                #print("iteracion ",i)
                 R,G,B = line
                 buffer_R[i%50] = float(R)
                 buffer_G[i%50] = float(G)
                 buffer_B[i%50] = float(B)
-                if (i%50 == 0):                    
+                if (i%50 == 0 and i!= 0):          
+                    #print("entre con 100 datos")
+                    #print("\n\nbuffer_R=\n",buffer_R)
                     AC_R = np.amax(buffer_R) - np.amin(buffer_R)
                     AC_G = np.amax(buffer_G) - np.amin(buffer_G)
                     AC_B = np.amax(buffer_B) - np.amin(buffer_B)
                     DC_R = np.mean(buffer_R)
                     DC_G = np.mean(buffer_G)
                     DC_B = np.mean(buffer_B)
-                    # RoR = (AC_R/DC_R)/(AC_B/DC_B)
-                    # m = (70-100)/(RoR_max-RoR_min)
-                    # n = 100 - m*RoR_min
-                    # SpaO2 = n + m*RoR
-                    SpaO2 = SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor)
-                    print("SPA_O2 = ", SpaO2,"%\n")
-                    
+                    SpaO2 = SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor)[0]
+                    if not (np.isnan(buffer_R).any() or np.isnan(buffer_G).any() or np.isnan(buffer_B).any()):
+                        BPM = POS2(buffer_R,buffer_G,buffer_B)
+                        if(BPM != -1 ):
+                            print("SPA_O2 = ", SpaO2,"%")
+                            print("breathing rate  = ", BPM, "BPM\n")    
                 i=i+1
         f.close()
     return 1
@@ -117,7 +192,6 @@ def rPPG_extraction(A, regressor):
 
 #-----------------------------------------------------------------------------#
 #----------------------Comienzo---de---programa-------------------------------#
-
 ## Entrenar la svr
 regressor = creat_SVR_FUNCTION()
 # crear archivo .csv y en el caso que existe lo va a sobre-escribir
@@ -148,12 +222,12 @@ while True:
     roi_cropped = frame[roi_inicio[1]+thickness:roi_fin[1]-thickness,roi_inicio[0]+thickness:roi_fin[0]-thickness]
     step1 , A = determinacion_threshold(roi_cropped)
     #print(A); print("\n")
-    rPPG_extraction(A,regressor)    
+    estimated_SPAO2(A,regressor)    
     # Display the resulting frame
     cv.imshow('frame rgb', frame)
     cv.imshow('step1', step1)
     # end teh program with the event keypressed-q
-    if ( ( cv.waitKey(1) == ord('q') ) or ( cv.waitKey(1) == ord('Q') ) ):
+    if ( cv.waitKey(1) == ord('q') ):
         break
 
 # When everything done...
