@@ -3,13 +3,21 @@
 Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de Respiración y Saturación de Oxígeno.
 
 # Opcion 1 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de PPG
-	1. 
+	1. Proceso de obtencion de Region de interes (Rostro, Frente y boca)
+	- Lo primero fue cargar los clasificadores Haarcascade de los .xml para rostro, ojos y boca.
+	- Se pasa el frame de BGR a escala de grises.
+	- Se aplica el clasificador cargado para reconocer rostro.
+	- Dentro de la imagen del rostro reconocido se aplica el clasificador para ojos.
+	- Con algunos cálculos matemáticos se obtiene la region sobre los ojos, es decir la frente.
+	- Dentro de la misma imagen del rostro se aplica el clasificador para boca.
+	- Con algunos cálculos matemáticos se obtiene la región de la boca reconocida solo en la mitad inferior del rostro.
 	
 	2.  Proceso de análisis del ROI
 
+
 	- Lo primero es pasar el RGB a escala de grises
 	- Se calcula la media aritmética de todos los pixeles de la ROI detectada.
-	- Se empiezan a tomar de 25 datos de imagen por segundo a procesar para generar la curva de respiración.
+	- Se empiezan a tomar de 25 datos de imagen por segunda a procesar para generar la curva de respiración.
 	- Se le aplica la fft a los datos obtenidos de tal forma de obtener la frecuencia.
 	- Se calcula los bpm y se muestran en la interfaz, en caso de encontrar inconsistencia se manda 0.
 	
