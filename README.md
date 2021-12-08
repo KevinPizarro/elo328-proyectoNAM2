@@ -11,7 +11,7 @@ Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de R
 	- Se calcula la media aritmética de todos los pixeles de la ROI detectada.
 	- Se empiezan a tomar de 25 datos de imagen por segunda a procesar para generar la curva de respiración.
 	- Se le aplica la fft a los datos obtenidos de tal forma de obtener la frecuencia.
-	-  Se calcula los bpm y se muestran en la interfaz, en caso de encontrar inconsistencia se manda 0.
+	- Se calcula los bpm y se muestran en la interfaz, en caso de encontrar inconsistencia se manda 0.
 	
 	- Trabajo realizado por Johanny Espinoza, Victor Cortés y Rudolf Hartmann.
 
