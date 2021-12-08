@@ -2,7 +2,7 @@
 """
 Created on Thu Nov 11 17:31:40 2021
 
-@author: Gustavo Silva, Kevin Pizarro
+@author: Gustavo Silva, Kevin Pizarro trabajaron como equipo en reuniones periodicas
 @objective: Make the code to predict de SPO2 and respiration curve using rPPG and SVG 
 """
 # import sys
@@ -25,7 +25,7 @@ PATH = "."
 # Numero de la camara que esta utilizando
 CAM_NUMBER = 0
 
-
+#creacion de filtro para estimacion de heart rate (H4.5-H4.6)
 def butter_lowpass(cutoff, fs, order=5):
     nyq = 0.5 * fs
     normal_cutoff = cutoff / nyq
@@ -37,7 +37,7 @@ def butter_lowpass_filter(data, cutoff, fs, order=5):
     y = lfilter(b, a, data)
     return y
 
-# se crea la señal de pulso H
+# se crea la señal de pulso H (H4.5-H4.6)
 def POS2(R_v,G_v,B_v):
     l = 30
     mean_rgb= np.array([R_v, G_v, B_v])
@@ -94,12 +94,13 @@ def POS2(R_v,G_v,B_v):
     # plt.plot(y)
     working_data, measures = hp.process(y, fs, report_time=False) 
     BPM = -1
+    #realizacion (H4.8)
     if( not np.isnan(measures['breathingrate']) ):
         BPM = measures['breathingrate']*60
         #print('breathing rate is: %s Hz\n' %measures['breathingrate'])
     return BPM
 
-# funcion que me entrena el modelo del SVR creando el modelo regressor
+# funcion que me entrena el modelo del SVR creando el modelo regressor (H4.7)
 def creat_SVR_FUNCTION():
     x = []
     y = []
@@ -118,7 +119,7 @@ def creat_SVR_FUNCTION():
     regressor = make_pipeline(StandardScaler(), SVR(C=1.0, epsilon=0.2))
     regressor.fit(x, y)
     return regressor
-# funcion que recibe las componentes ac, dc y el regresor para aproximar la SpaO2
+# funcion que recibe las componentes ac, dc y el regresor para aproximar la SpaO2 (H4.7)
 def SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor):
     RoR = (AC_R/DC_R)/(AC_B/DC_B)
     SpaO2 = regressor.predict(np.array(RoR).reshape(-1,1))
@@ -129,6 +130,7 @@ def SVR_PREDICT(AC_R, AC_G, AC_B, DC_R, DC_G, DC_B, regressor):
 def determinacion_threshold(frame):
     frame_YCrCb=cv.cvtColor(frame,cv.COLOR_BGR2YCR_CB)
     Y,Cr,Cb = cv.split(frame_YCrCb)
+    #realizacion (H4.2)
     th_Cr , step1_Cr = cv.threshold(Cr,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
     kernel = np.ones((5,5), np.uint8) 
     img_erosion = cv.erode(step1_Cr, kernel, iterations=1) 
@@ -146,11 +148,12 @@ def determinacion_threshold(frame):
                 g_prom = g_prom + frame[i][j][1]
                 b_prom = b_prom + frame[i][j][2]
     A = [r_prom/total, g_prom/total, b_prom/total]
+    #realizacion (H4.3)
     return img_dilation , A
 
 # Recibir la matriz de promedio del color RGB del pixel actual y los anteriores
 # concatenar estas matrices formando mi matriz A actualizada
-# formar las curvas temporales de R G B 
+# formar las curvas temporales de R G B  (H4.7)
 def estimated_SPAO2(A, regressor):
     if ( os.path.exists(PATH+'/Matris_A.csv')): #si existe
         f = open(PATH+'/Matris_A.csv', 'a+')
@@ -166,6 +169,7 @@ def estimated_SPAO2(A, regressor):
         buffer_B = np.zeros(50)
         for line in reader:
             if ( line != [] ):
+                #realizacion (H4.4)
                 R,G,B = line
                 buffer_R[i%50] = float(R)
                 buffer_G[i%50] = float(G)
@@ -197,7 +201,7 @@ regressor = creat_SVR_FUNCTION()
 # crear archivo .csv y en el caso que existe lo va a sobre-escribir
 f = open(PATH+'/Matris_A.csv', 'w+')
 f.close()
-#obtener video de la camara
+#obtener video de la camara (H4.1)
 cap = cv.VideoCapture(CAM_NUMBER)
 if not cap.isOpened():
     print("Cannot open camera")

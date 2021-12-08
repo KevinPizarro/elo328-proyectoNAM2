@@ -2,7 +2,7 @@
 """
 Created on Sun Nov 28 21:02:16 2021
 
-@author: Gustavo
+@author: Gustavo Silva, Kevin Pizarro trabajaron como equipo en reuniones periodicas (A1.1)
 """
 
 import numpy as np
