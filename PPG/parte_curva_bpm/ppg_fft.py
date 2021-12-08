@@ -1,3 +1,7 @@
+##Código realizado por:
+##Victor Cortés
+##Johanny Espinoza
+
 # OpenCV para acceso a la cámara y lectura de fotogramas
 import cv2
 # Paquete de análisis de frecuencia cardíaca
@@ -180,16 +184,16 @@ ret, frame = cap.read()
 # Escala de grises
 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
-numCols = gray.shape[0]
+numColumns = gray.shape[0]
 numRows = gray.shape[1]
         
 middleRow = int(numRows/2)
-middleCol = int(numCols/2)
+middleColumns = int(numColumns/2)
 
 boxH = int(numRows*0.15)
-boxW = int(numCols*0.15)
+boxW = int(numColumns*0.15)
 
-box = pg.RectROI( (middleRow-boxH/2,middleCol-boxW/2), \
+box = pg.RectROI( (middleRow-boxH/2,middleColumns-boxW/2), \
     (boxH,boxW), pen=9, sideScalers=True, centered=True)
 imgPlot.addItem(box)
 

@@ -1,3 +1,6 @@
+##Código realizado por:
+##Victor Cortés
+
 import numpy as np
 
 test_value = 1546841

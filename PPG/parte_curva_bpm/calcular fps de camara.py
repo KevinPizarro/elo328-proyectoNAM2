@@ -1,3 +1,6 @@
+##Código realizado por:
+##Victor Cortés
+
 #!/usr/bin/env python
 
 import cv2
