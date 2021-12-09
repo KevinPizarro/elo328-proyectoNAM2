@@ -2,7 +2,7 @@
 
 Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de Respiración y Saturación de Oxígeno.
 
-# Opcion 1 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de PPG
+# Opcion 1 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de PPG - ROI Rostro
 	1. Proceso de obtencion de Region de interes (Rostro, Frente y boca)
 	- Lo primero fue cargar los clasificadores Haarcascade de los .xml para rostro, ojos y boca.
 	- Se pasa el frame de BGR a escala de grises.
@@ -23,7 +23,7 @@ Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de R
 	
 	- Trabajo realizado por Johanny Espinoza, Victor Cortés y Rudolf Hartmann.
 
-# Opcion 2 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de rPPG y SVR
+# Opcion 2 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de rPPG y SVR - ROI Mano
 	- Lo primero es obtener la region de interes en la mano, se plantea dejar la mano en un espacio en especifico delimitado.
 	  Se le aplica segmentacion por treshholding a traves de Otsu y luego se extrae el valor promedio de cada canal RGB de la ROI.
 	- Calculo de la saturacion de oxigeno a traves de ventanas de tiempo de 50 datos, a traves del metodo de RoR a partir de los canal RB
