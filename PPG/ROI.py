@@ -44,8 +44,8 @@ def autoAdjustBrightness(src, cols, rows):
 
     ratio = brightness / minimum_brightness
     if ratio >= 1:
-        print("Image already bright enough")
-        print(ratio)
+        # print("Image already bright enough")
+        # print(ratio)
         return cv2.convertScaleAbs(src, alpha = (-1/ratio)*2, beta = 0)
 
     else:
@@ -64,7 +64,8 @@ def detect():
     detection = 0
     fx = 0
     fx2 = 0
-    
+    forehead_img = 0
+    mouth_img = 0 
     while(True):
         ret, frame = camera.read()
         
@@ -94,6 +95,7 @@ def detect():
                 else:
                     fx = x+ex
                 cv2.rectangle(frame, (fx,y), (fx2,y+ey), (0,255,0), 2)
+                forehead_img = frame[y:y+ey, fx:fx2].copy() 
             
             ## Se aplica el reconociento de boca dentro del cuadro del rostro.
             mouth = mouth_cascade.detectMultiScale(roi_gray, 1.1, 20)
@@ -101,7 +103,7 @@ def detect():
             for (mx,my,mw,mh) in mouth:
                 if y+my > y + h/2:
                     cv2.rectangle(frame, (x+mx,y+my), (x+mx+mw,y+my+mh), (255,255,0), 2)
-
+                    mouth_img = frame[y+my:y+my+mh, x+mx:x+mx+mw].copy() 
         ## Si no se reconocen caras, se sube el brillo.
         if ( len(faces) > 0 ):
             cols, rows= faces.shape
