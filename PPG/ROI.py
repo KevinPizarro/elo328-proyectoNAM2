@@ -106,7 +106,7 @@ def grabCam(detection,fx,fx2,forehead_img, mouth_img):
                     ey = eyy
 
         cv2.rectangle(frame, (x+ex,y), (x+izq,y+ey), (0,255,0), 2)
-        forehead_img = frame[y:y+ey, fx:fx2].copy() 
+        forehead_img = frame[y:y+ey, x+ex:x+izq].copy() 
         
         ## Se aplica el reconociento de boca dentro del cuadro del rostro.
         mouth = mouth_cascade.detectMultiScale(roi_gray, 1.1, 20)
@@ -121,16 +121,23 @@ def grabCam(detection,fx,fx2,forehead_img, mouth_img):
         faces = autoAdjustBrightness(faces, cols, rows)
         detection = 0
 
+    mouth_intensity, forehead_intensity = 0,0
+    
+    if(type(mouth_img) != int):
+        mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
 
-    mouth_rowSum = np.sum(mouth_img, axis=0)
-    mouth_colSum = np.sum(mouth_rowSum, axis=0)
-    mouth_allSum = mouth_rowSum + mouth_colSum
-    mouth_intensity = np.median(np.median(mouth_allSum))
+        mouth_rowSum = np.sum(mouth_gray, axis=0)
+        mouth_colSum = np.sum(mouth_rowSum, axis=0)
+        mouth_allSum = mouth_rowSum + mouth_colSum
+        mouth_intensity = np.median(np.median(mouth_allSum))
 
-    forehead_rowSum = np.sum(forehead_img, axis=0)
-    forehead_colSum = np.sum(forehead_rowSum, axis=0)
-    forehead_allSum = forehead_rowSum + forehead_colSum
-    forehead_intensity = np.median(np.median(forehead_allSum))
+    if(type(forehead_img) != int):
+        forehead_gray = cv2.cvtColor(forehead_img, cv2.COLOR_BGR2GRAY)
+
+        forehead_rowSum = np.sum(forehead_gray, axis=0)
+        forehead_colSum = np.sum(forehead_rowSum, axis=0)
+        forehead_allSum = forehead_rowSum + forehead_colSum
+        forehead_intensity = np.median(np.median(forehead_allSum))
 
     cv2.imshow('camera', frame)
     
