@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import math
-import face_recognition
+# import face_recognition
 
 
 alpha = 1.0
@@ -58,7 +58,7 @@ def detect():
     
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
     eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_righteye_2splits.xml')
-    mouth_cascade = cv2.CascadeClassifier('mouth.xml')
+    mouth_cascade = cv2.CascadeClassifier('PPG\mouth.xml')
     
     camera = cv2.VideoCapture(0)
     detection = 0
