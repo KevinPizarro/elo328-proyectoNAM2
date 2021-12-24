@@ -13,8 +13,6 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_rightey
 mouth_cascade = cv2.CascadeClassifier('PPG\mouth.xml')
 camera = cv2.VideoCapture(0)
 detection = 0
-fx = 0
-fx2 = 0
 forehead_img = 0
 mouth_img = 0 
 
@@ -74,7 +72,7 @@ def detect():
     camera.release()
     cv2.destroyAllWindows()
     
-def grabCam(detection,fx,fx2,forehead_img, mouth_img):
+def grabCam(detection,forehead_img, mouth_img):
     ret, frame = camera.read()
         
     # frame = autoGammaCorrection(frame)
@@ -122,7 +120,7 @@ def grabCam(detection,fx,fx2,forehead_img, mouth_img):
         detection = 0
 
     mouth_intensity, forehead_intensity = 0,0
-    
+
     if(type(mouth_img) != int):
         mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
 
