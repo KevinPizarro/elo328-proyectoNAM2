@@ -214,7 +214,8 @@ regressor = creat_SVR_FUNCTION()
 f = open(PATH+'/Matris_A.csv', 'w+')
 f.close()
 #obtener video de la camara (H4.1)
-cap = cv.VideoCapture(CAM_NUMBER)
+#cap = cv.VideoCapture(CAM_NUMBER)
+cap = cv.VideoCapture('../Videos/E-Trujillo.mp4');
 detector = HandDetector(detectionCon=0.8, maxHands=2)
 if not cap.isOpened():
     print("Cannot open camera")
@@ -224,6 +225,8 @@ height = cap.get(4)  # float height
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
+    #size = frame.shape
+    #frame = cv2.resize(frame, (400,400)) 
     # if frame is read correctly ret is True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
@@ -232,6 +235,7 @@ while True:
     # hands, img = detector.findHands(frame)  # with draw
     hands = detector.findHands(frame, draw=False)  # without draw
     roi_cropped = frame[0:1,0:1]
+
     if hands:
         thick = 15
         # Hand 1
@@ -242,6 +246,8 @@ while True:
         handType1 = hand1["type"]  # Handtype Left or Right
 
         fingers1 = detector.fingersUp(hand1)
+    
+        
         y_inicio = bbox1[1]-thick
         if(y_inicio<0):
             y_inicio = 0
@@ -255,6 +261,8 @@ while True:
         if(x_fin<0):
             x_fin = 0
         roi_cropped = frame[y_inicio:y_fin , x_inicio:x_fin]
+        
+            
         # #intentar hacer una roi
         # roi_inicio = (int(width*0.1),int(height*0.1+150))
         # roi_fin =  (int(width*0.1+200),int(height*0.1+350))
