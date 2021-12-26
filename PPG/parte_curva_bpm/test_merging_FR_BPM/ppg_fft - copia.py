@@ -59,7 +59,7 @@ def actualizar_csv(csvStr=None):
     else:
         csvFileName = csvStr+'_'+now.strftime("%Y-%m-%d_%I_%M_%S")
 
-    headers = (u'cam_time'+','+u'cam_waveform'+','+u'cam_bpm')
+    headers = (u'cam_time'+','+u'cam_pulseWaveform_forehead'+','+u'cam_bpm_forehead'+','+u'cam_pulseWaveform_mouth'+','+u'cam_bpm_mouth')
     with io.open(csvFileName + '.csv', 'w', newline='') as f:
         f.write(headers)
         f.write(u'\n')
@@ -67,13 +67,12 @@ def actualizar_csv(csvStr=None):
 
 def Guardar_csv(csvFileName, data):
     with io.open(csvFileName + ".csv", "a", newline="") as f:
-
-        row = str(data['cam_time'])+","+str(data['cam_pulseWaveform'])+","+str(data['cam_bpm'])
+        row = str(data['cam_time'])+","+str(data['cam_pulseWaveform_forehead'])+","+str(data['cam_bpm_forehead'])+","+str(data['cam_pulseWaveform_mouth'])+","+str(data['cam_bpm_mouth'])
         f.write(row)
         f.write("\n") 
 
 def update():
-    global camData, camCurve, ptr, t, filename
+    global camData, camData2, camCurve, camCurve2, ptr, t, filename
 
     # se toma la dara
     image, signal, signal2 = grabCam(detection,forehead_img, mouth_img) ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
@@ -83,11 +82,20 @@ def update():
     cam_bpm = camBPMData[-1] ##guarda el último valor de camBPMData
     camSig = camData - np.nanmean(camData) ## se toman los valores tomados y se le resta la media aritmetica por los 0 
     ## se hace esto para que al momento de entrar al hp.process, se muestre la diferencia entre las imagenes y eso se
+    cam_bpm2 = camBPMData2[-1] ##guarda el último valor de camBPMData
+    camSig2 = camData2 - np.nanmean(camData2) ## se toman los valores tomados y se le resta la media aritmetica por los 0
     if(signal == 0):
         signal = camData[-1]
     
     else:
         signal = signal
+
+    if(signal2 == 0):
+        signal2 = camData2[-1]
+    
+    else:
+        signal2 = signal2
+
     try:
         working_data, measures = hp.process(camSig, 10.0) ##ocupa la libreria de hearthpy la cual hace el procesamiento de la fft a la imagen recibida
         ###print('breathing rate is: %s bpm' %measures['bpm'])
@@ -99,15 +107,30 @@ def update():
             ###print('breathing rate is: %s bpm' %measures['bpm'])
     ### fin HeartPy
 
+    try:
+        working_data, measures2 = hp.process(camSig2, 10.0) 
+    except BadSignalWarning:
+        print("Mala señal")
+    else:
+        if(measures2['bpm'] > 40 and measures2['bpm'] < 120):
+            cam_bpm2 = measures2['bpm']
+
     # vice versa
-    image = image.T[:, ::-1]## da vuelta la imagen y la muestra
-    img.setImage(image, autoLevels=True) ## se coloca la imagen a la variable global que se ejecuta en la GUI
+    #image = image.T[:, ::-1]## da vuelta la imagen y la muestra
+    #img.setImage(image, autoLevels=True) ## se coloca la imagen a la variable global que se ejecuta en la GUI
 
     camData[:-1] = camData[1:]  # desplazar datos en la matriz una muestra a la izquierda
     camData[-1] = signal ## cambia solamente el ultimo v    alor de camData para el grafico
 
     camBPMData[:-1] = camBPMData[1:]##Lo que se hace aca es correr todo el arreglo de derecha a izquierda un espacio y copiar el ultimo en la ultima posicion.
     camBPMData[:-1] = cam_bpm ## genero un arreglo de 50 con los valores del ultimo valor de bpm de tal forma de tener como una linea constante al plotear
+
+    camData2[:-1] = camData2[1:]  # desplazar datos en la matriz una muestra a la izquierda
+    camData2[-1] = signal2 ## cambia solamente el ultimo v    alor de camData para el grafico
+
+    camBPMData2[:-1] = camBPMData2[1:]##Lo que se hace aca es correr todo el arreglo de derecha a izquierda un espacio y copiar el ultimo en la ultima posicion.
+    camBPMData2[:-1] = cam_bpm2 ## genero un arreglo de 50 con los valores del ultimo valor de bpm de tal forma de tener como una linea constante al plotear
+
     ##print('El camBPMData corresponde al valor de : %s bpm' %camBPMData)
     t[:-1] = t[1:]
     t[-1] = (datetime.now() - start_time).total_seconds()
@@ -115,9 +138,11 @@ def update():
 
     # Los datos del paquete se guardarán en CSV.
     single_record = {}
-    single_record['cam_pulseWaveform'] = camData[-1]## el último valor del arreglo.
-    single_record['cam_bpm'] =cam_bpm
     single_record['cam_time'] = t[-1]
+    single_record['cam_pulseWaveform_forehead'] = camData[-1]## el último valor del arreglo.
+    single_record['cam_bpm_forehead'] =cam_bpm
+    single_record['cam_pulseWaveform_mouth'] = camData2[-1]## el último valor del arreglo.
+    single_record['cam_bpm_mouth'] =cam_bpm2
     Guardar_csv(filename, single_record)
     ## fin del csv
 
@@ -125,8 +150,13 @@ def update():
     camCurve.setData(camData)
     camCurve.setPos(ptr, 0)
 
+    camCurve2.setData(camData2)
+    camCurve2.setPos(ptr, 0)
+
     camBPMCurve.setData(camBPMData)
     camBPMCurve.setPos(ptr, 0)
+    camBPMCurve2.setData(camBPMData2)
+    camBPMCurve2.setPos(ptr, 0)
 
     print(t[-1])
 
@@ -216,21 +246,27 @@ cap = cv2.VideoCapture(0)
 #### GUI Setup
 ## ploteo de la imagen 
 imgPlot = win.addPlot(colspan=2)
-imgPlot.getViewBox().setAspectLocked(True)
-win.nextRow()
+#imgPlot.getViewBox().setAspectLocked(True)
+#win.nextRow()
 
 ## Plot for camera intensity
 camPlot = win.addPlot()
+camPlot2 = win.addPlot()
 camBPMPlot = win.addPlot()
+camBPMPlot2 = win.addPlot()
 win.nextRow()
 
 # Cuadro ImageItem para mostrar datos de imagen
-img = pg.ImageItem()
-imgPlot.addItem(img)
+#img = pg.ImageItem()
+#imgPlot.addItem(img)
+imgPlot.getAxis('top').setStyle(showValues=False)
+imgPlot.getAxis('right').setStyle(showValues=False)
 imgPlot.getAxis('bottom').setStyle(showValues=False)
 imgPlot.getAxis('left').setStyle(showValues=False)
 imgPlot.getAxis('bottom').setPen(0,0,0)
 imgPlot.getAxis('left').setPen(0,0,0)
+imgPlot.getAxis('top').setPen(0,0,0)
+imgPlot.getAxis('right').setPen(0,0,0)
 
 win.show() # desplegar la pantalla
 #### end GUI Setup
@@ -241,19 +277,31 @@ fs = 25 ## este valor fue obtenido por la funcion creada de "calcular fps de cam
 camData = np.random.normal(size=50)
 camBPMData = np.zeros(50)
 
+camData2 = np.random.normal(size=50)
+camBPMData2 = np.zeros(50)
+
 camPlot.getAxis('bottom').setStyle(showValues=False)
 camPlot.getAxis('left').setStyle(showValues=False)
+camPlot2.getAxis('top').setStyle(showValues=False)
+camPlot2.getAxis('right').setStyle(showValues=False)
 
 camBPMPlot.getAxis('bottom').setStyle(showValues=False)
-camBPMPlot.setLabel('left','Cam BPM')
+camBPMPlot.setLabel('left','Cam BPM forehead')
+camBPMPlot2.getAxis('top').setStyle(showValues=False)
+camBPMPlot2.setLabel('right','Cam BPM mouth')
 
 # Se usa linspace en lugar de arange debido a errores de espaciado
 t = np.linspace(start=0,stop=5.0,num=50)
 
 camCurve = camPlot.plot(t, camData, pen=camPen,name="Camera")
 camPlot.setLabel('left','Cam Signal')
+camCurve2 = camPlot2.plot(t, camData2, pen=camPen,name="Camera")
+camPlot2.setLabel('right','Cam Signal')
 
-camBPMCurve = camBPMPlot.plot(t,camBPMData,pen=camPen,name="Cam BPM")
+
+camBPMCurve = camBPMPlot.plot(t,camBPMData,pen=camPen,name="Cam BPM forehead")
+camBPMCurve2 = camBPMPlot2.plot(t,camBPMData2,pen=camPen,name="Cam BPM mouth")
+
 
 ptr = 0 ## para fijar posicion
 
