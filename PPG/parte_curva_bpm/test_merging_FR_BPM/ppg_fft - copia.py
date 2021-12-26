@@ -77,8 +77,8 @@ def update():
     global camData, camData2, camCurve, camCurve2, ptr, t, filename
 
     # se toma la dara
-    image, signal, signal2 = grabCam(detection,forehead_img, mouth_img) ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
-    # image, signal, signal2 = grabCam2() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    # image, signal, signal2 = grabCam(detection,forehead_img, mouth_img) ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    image, signal, signal2 = grabCam2(forehead_img, mouth_img) ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
     print('El valor de signal es: %s bpm' %signal)
     
     ### heartpy
@@ -232,13 +232,13 @@ def grabCam(detection,forehead_img, mouth_img):
     print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
     return frame, forehead_intensity, mouth_intensity
 
-def grabCam2():
+def grabCam2(forehead_img, mouth_img):
     success, img = cap.read()
     img, bboxs = detector.findFaces(img)
     
     if bboxs:
         # bboxInfo - "id","bbox","score","center"
-        print(bboxs)
+        # print(bboxs)
         center = bboxs[0]["center"]
         cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
     
@@ -274,8 +274,6 @@ def grabCam2():
             if my+mh < y+h:
                 cv2.rectangle(img, (mx,my), (mx+mw,my+mh), (255,255,0), 2)
                 mouth_img = img[my:my+mh, mx:mx+mw].copy() 
-
-    
 
     mouth_intensity, forehead_intensity = 0,0
 
