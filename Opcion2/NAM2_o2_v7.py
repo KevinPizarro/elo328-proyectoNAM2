@@ -102,7 +102,7 @@ def POS2(R_v,G_v,B_v):
     BPM = -1
     #realizacion (H4.8)
     if( not np.isnan(measures['breathingrate']) ):
-        BPM = measures['breathingrate']*60
+        BPM = measures['breathingrate']*60/4
         #print('breathing rate is: %s Hz\n' %measures['breathingrate'])
     return BPM
 
@@ -215,7 +215,7 @@ f = open(PATH+'/Matris_A.csv', 'w+')
 f.close()
 #obtener video de la camara (H4.1)
 #cap = cv.VideoCapture(CAM_NUMBER)
-cap = cv.VideoCapture('../Videos/E-Trujillo.mp4');
+cap = cv.VideoCapture('../Videos/M_Zuniga_recorte.mp4');
 detector = HandDetector(detectionCon=0.8, maxHands=2)
 if not cap.isOpened():
     print("Cannot open camera")
@@ -226,7 +226,7 @@ while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
     #size = frame.shape
-    #frame = cv2.resize(frame, (400,400)) 
+    #frame = cv2.resize(frame, (400,600)) 
     # if frame is read correctly ret is True
     if not ret:
         print("Can't receive frame (stream end?). Exiting ...")
