@@ -64,7 +64,7 @@ def autoAdjustBrightness(src, cols, rows):
 ## Funcion que detecta el frame de la imagen y la procesa, para detectar el rostro, posteriormente la frente y la boca.
 def detect():
     while(True):
-        mouth_in, forehead_in = grabCam(detection,fx,fx2,forehead_img, mouth_img)
+        mouth_in, forehead_in = grabCam(detection,forehead_img, mouth_img)
         print(mouth_in,forehead_in)
         if cv2.waitKey(int(1000/12)) & 0xff == ord("q"):
             break
