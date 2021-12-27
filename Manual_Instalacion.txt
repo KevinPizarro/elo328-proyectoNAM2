@@ -1,7 +1,7 @@
-Manual de Instalacion
+Manual de Instalación
 
 Para este proyecto se recomienda tener instalado Python3
-(la forma mas simple es con Anaconda como se observa en el video)
+(la forma más simple es con Anaconda como se observa en el video)
 	https://www.youtube.com/watch?v=OmmklYlRGzo
 
 Instalar las siguientes bibliotecas para python:
@@ -34,7 +34,7 @@ cvzone: https://pypi.org/project/cvzone/
 mediapipe: https://pypi.org/project/mediapipe/
 	pip install mediapipe --user
 
-El resto de las librerias deberian ser clasicas, es decir; descargadas al momento en que instalo python3.
+El resto de las librerias deberian ser clásicas, es decir; descargadas al momento en que instaló python3.
 En el caso que suceda que no encuentra alguna biblioteca, de preferencia buscar "conda install biblioteca"
 y en segundo caso recurrir a "pip install biblioteca".
 
@@ -68,7 +68,7 @@ Para ejecutar la PPG, lo que debemos tener es en la misma carpeta los siguientes
 	
 
 
-Para ejecutar de la opcion 2 ROI MANO, se recomienda tener una carpeta que incluya los siguientes archivos:
+Para ejecutar de la opción 2 ROI MANO, se recomienda tener una carpeta que incluya los siguientes archivos:
 	FormacionData.py
 	NAM2_o2_vX.py //donde x se indica la version del proyecto que se esta utilizando
 	spaO2_dataset.csv
