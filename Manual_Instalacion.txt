@@ -59,11 +59,6 @@ Para ejecutar la PPG, lo que debemos tener es en la misma carpeta los siguientes
 		python '.\ppg_fft.py' "0"
 	
 	Dentro del programa el "0" hace que se active la cámara.
-
-	El programa se termina cerrando la ventana donde se ven los gráficos que calculan los bpm. 
-	Al cerrar el programa se obtiene un archivo csv el cual tiene todos los datos de la ejecución del programa,
-	el cual al sacar el promedio de todos los bpm que no sean 0 se logra obtener los bpm de la persona, esto 
-	para el caso de la boca o de la frente que aparecen especificados en el csv.
 		
 	
 
