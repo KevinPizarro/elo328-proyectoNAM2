@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import math
+import spO2
 # import face_recognition
 
 
@@ -10,11 +11,12 @@ gamma = 2.0
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_righteye_2splits.xml')
-mouth_cascade = cv2.CascadeClassifier('PPG\mouth.xml')
+mouth_cascade = cv2.CascadeClassifier('./mouth.xml')
 camera = cv2.VideoCapture(0)
 detection = 0
-forehead_img = 0
-mouth_img = 0 
+
+
+
 
 ## Funcion para suavizar ruido de la imagen.
 def suavizarRuido(src, k, k2):
@@ -63,17 +65,57 @@ def autoAdjustBrightness(src, cols, rows):
 
 ## Funcion que detecta el frame de la imagen y la procesa, para detectar el rostro, posteriormente la frente y la boca.
 def detect():
+    count = 0
+    FDC_B, FDC_G, FDC_R = 0, 0, 0
+    FAC_B, FAC_G, FAC_R = 0, 0, 0
+    FMAX_B, FMAX_G, FMAX_R = 0, 0, 0
+    FMIN_B, FMIN_G, FMIN_R = 255, 255, 255
+
+    MDC_B, MDC_G, MDC_R = 0, 0, 0
+    MAC_B, MAC_G, MAC_R = 0, 0, 0
+    MMAX_B, MMAX_G, MMAX_R = 0, 0, 0
+    MMIN_B, MMIN_G, MMIN_R = 255, 255, 255
+
+    regressor = spO2.creat_SVR_FUNCTION()
+    
     while(True):
-        mouth_in, forehead_in = grabCam(detection,forehead_img, mouth_img)
-        print(mouth_in,forehead_in)
+        img, mouth_img, forehead_img = grabCam(detection)
+        count += 1
+        if (len(forehead_img) > 0):
+            FP_b, FP_g, FP_r = spO2.Color_Mean(forehead_img)
+            FAC_R, FAC_G, FAC_B, FMIN_B, FMIN_G, FMIN_R, FMAX_B, FMAX_G, FMAX_R = spO2.AC_Calculation(FP_b, FP_g, FP_r, FAC_R, FAC_G, FAC_B, FMIN_B, FMIN_G, FMIN_R, FMAX_B, FMAX_G, FMAX_R, count)
+            FDC_R, FDC_G, FDC_B = spO2.DC_Calculation(FP_b, FP_g, FP_r, FDC_R, FDC_G, FDC_B, count)
+
+        if (len(mouth_img) > 0):
+            MP_b, MP_g, MP_r = spO2.Color_Mean(mouth_img)
+            MAC_R, MAC_G, MAC_B, MMIN_B, MMIN_G, MMIN_R, MMAX_B, MMAX_G, MMAX_R = spO2.AC_Calculation(MP_b, MP_g, MP_r, MAC_R, MAC_G, MAC_B, MMIN_B, MMIN_G, MMIN_R, MMAX_B, MMAX_G, MMAX_R, count)
+            MDC_R, MDC_G, MDC_B = spO2.DC_Calculation(MP_b, MP_g, MP_r, MDC_R, MDC_G, MDC_B, count)
+        
+        if (count == 50):
+            
+            # print(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
+            # print(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
+            if(FAC_R > 0):
+                Fsat = spO2.SVR_PREDICT(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
+                print(Fsat)
+
+            if(MAC_R > 0):
+                Msat = spO2.SVR_PREDICT(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
+                print(Msat)
+
+            count = 0
+
         if cv2.waitKey(int(1000/12)) & 0xff == ord("q"):
             break
            
     camera.release()
     cv2.destroyAllWindows()
     
-def grabCam(detection,forehead_img, mouth_img):
+def grabCam(detection):
     ret, frame = camera.read()
+    forehead_img = []
+    mouth_img = []
+
         
     # frame = autoGammaCorrection(frame)
 
@@ -110,7 +152,7 @@ def grabCam(detection,forehead_img, mouth_img):
         mouth = mouth_cascade.detectMultiScale(roi_gray, 1.1, 20)
         ## Se elimina el reconocimiento de bocas sobre la mitad superior de la cara.
         for (mx,my,mw,mh) in mouth:
-            if y+my > y + h/2:
+            if y+my > y + 2*(h/3):
                 cv2.rectangle(frame, (x+mx,y+my), (x+mx+mw,y+my+mh), (255,255,0), 2)
                 mouth_img = frame[y+my:y+my+mh, x+mx:x+mx+mw].copy() 
     ## Si no se reconocen caras, se sube el brillo.
@@ -119,27 +161,27 @@ def grabCam(detection,forehead_img, mouth_img):
         faces = autoAdjustBrightness(faces, cols, rows)
         detection = 0
 
-    mouth_intensity, forehead_intensity = 0,0
+    # mouth_intensity, forehead_intensity = 0,0
 
-    if(type(mouth_img) != int):
-        mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
+    # if(type(mouth_img) != int):
+    #     mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
 
-        mouth_rowSum = np.sum(mouth_gray, axis=0)
-        mouth_colSum = np.sum(mouth_rowSum, axis=0)
-        mouth_allSum = mouth_rowSum + mouth_colSum
-        mouth_intensity = np.median(np.median(mouth_allSum))
+    #     mouth_rowSum = np.sum(mouth_gray, axis=0)
+    #     mouth_colSum = np.sum(mouth_rowSum, axis=0)
+    #     mouth_allSum = mouth_rowSum + mouth_colSum
+    #     mouth_intensity = np.median(np.median(mouth_allSum))
 
-    if(type(forehead_img) != int):
-        forehead_gray = cv2.cvtColor(forehead_img, cv2.COLOR_BGR2GRAY)
+    # if(type(forehead_img) != int):
+    #     forehead_gray = cv2.cvtColor(forehead_img, cv2.COLOR_BGR2GRAY)
 
-        forehead_rowSum = np.sum(forehead_gray, axis=0)
-        forehead_colSum = np.sum(forehead_rowSum, axis=0)
-        forehead_allSum = forehead_rowSum + forehead_colSum
-        forehead_intensity = np.median(np.median(forehead_allSum))
+    #     forehead_rowSum = np.sum(forehead_gray, axis=0)
+    #     forehead_colSum = np.sum(forehead_rowSum, axis=0)
+    #     forehead_allSum = forehead_rowSum + forehead_colSum
+    #     forehead_intensity = np.median(np.median(forehead_allSum))
 
     cv2.imshow('camera', frame)
     
-    return mouth_intensity, forehead_intensity
+    return frame, mouth_img, forehead_img
 
 if __name__ == "__main__":
     detect()

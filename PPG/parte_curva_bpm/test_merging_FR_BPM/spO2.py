@@ -1,10 +1,8 @@
-import cv2
 import csv
 import numpy as np
 from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-
 
 
 def Promediar_Color(color):

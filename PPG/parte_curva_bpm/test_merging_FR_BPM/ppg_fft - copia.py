@@ -15,6 +15,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
 from cvzone.FaceDetectionModule import FaceDetector
 import numpy as np
+import spO2
 
 import math
 # import face_recognition
@@ -28,8 +29,21 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_rightey
 mouth_cascade = cv2.CascadeClassifier('./mouth.xml')
 detector = FaceDetector()
 detection = 0
-forehead_img = 0
-mouth_img = 0 
+count = 0
+FDC_B, FDC_G, FDC_R = 0, 0, 0
+FAC_B, FAC_G, FAC_R = 0, 0, 0
+FMAX_B, FMAX_G, FMAX_R = 0, 0, 0
+FMIN_B, FMIN_G, FMIN_R = 255, 255, 255
+
+MDC_B, MDC_G, MDC_R = 0, 0, 0
+MAC_B, MAC_G, MAC_R = 0, 0, 0
+MMAX_B, MMAX_G, MMAX_R = 0, 0, 0
+MMIN_B, MMIN_G, MMIN_R = 255, 255, 255
+
+regressor = spO2.creat_SVR_FUNCTION()
+
+# forehead_img = 0
+# mouth_img = 0 
 
 ## Funcion para suavizar ruido de la imagen.
 def suavizarRuido(src, k, k2):
@@ -74,11 +88,43 @@ def Guardar_csv(csvFileName, data):
         f.write("\n") 
 
 def update():
-    global camData, camData2, camCurve, camCurve2, ptr, t, filename
+    global camData, camData2, camCurve, camCurve2, ptr, t, filename, count
+    global FDC_B, FDC_G, FDC_R, FAC_B, FAC_G, FAC_R, FMAX_B, FMAX_G, FMAX_R, FMIN_B, FMIN_G, FMIN_R
+    global MDC_B, MDC_G, MDC_R, MAC_B, MAC_G, MAC_R, MMAX_B, MMAX_G, MMAX_R, MMIN_B, MMIN_G, MMIN_R 
+    global regressor 
 
     # se toma la dara
-    # image, signal, signal2 = grabCam(detection,forehead_img, mouth_img) ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
-    image, signal, signal2 = grabCam2() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    image, signal, signal2, forehead_img, mouth_img = grabCam() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    # image, signal, signal2 = grabCam2() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    count += 1
+
+    ## Se empieza el algoritmo para calcular la saturacion de oxigeno
+    if (len(forehead_img) > 0):
+        FP_b, FP_g, FP_r = spO2.Color_Mean(forehead_img)
+        FAC_R, FAC_G, FAC_B, FMIN_B, FMIN_G, FMIN_R, FMAX_B, FMAX_G, FMAX_R = spO2.AC_Calculation(FP_b, FP_g, FP_r, FAC_R, FAC_G, FAC_B, FMIN_B, FMIN_G, FMIN_R, FMAX_B, FMAX_G, FMAX_R, count)
+        FDC_R, FDC_G, FDC_B = spO2.DC_Calculation(FP_b, FP_g, FP_r, FDC_R, FDC_G, FDC_B, count)
+
+    if (len(mouth_img) > 0):
+        MP_b, MP_g, MP_r = spO2.Color_Mean(mouth_img)
+        MAC_R, MAC_G, MAC_B, MMIN_B, MMIN_G, MMIN_R, MMAX_B, MMAX_G, MMAX_R = spO2.AC_Calculation(MP_b, MP_g, MP_r, MAC_R, MAC_G, MAC_B, MMIN_B, MMIN_G, MMIN_R, MMAX_B, MMAX_G, MMAX_R, count)
+        MDC_R, MDC_G, MDC_B = spO2.DC_Calculation(MP_b, MP_g, MP_r, MDC_R, MDC_G, MDC_B, count)
+    
+    if (count == 50):
+        
+        # print(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
+        # print(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
+        if(FAC_R > 0):
+            Fsat = spO2.SVR_PREDICT(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
+            print('La saturacion de Oxigeno en la sangre segun la medicion de la frente es: ', Fsat)
+
+
+        if(MAC_R > 0):
+            Msat = spO2.SVR_PREDICT(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
+            print('La saturacion de Oxigeno en la sangre segun la medicion de la boca es: ', Msat)
+
+        count = 0
+    
+
     print('El valor de signal es: %s bpm' %signal)
     
     ### heartpy
@@ -165,8 +211,9 @@ def update():
 
 
 
-def grabCam(detection,forehead_img, mouth_img):
+def grabCam():
     ret, frame = cap.read()
+    forehead_img, mouth_img = [],[]
 #   frame = autoGammaCorrection(frame)
 #    if (detection == 0 ):
 #       cols, rows, _ = frame.shape
@@ -212,7 +259,7 @@ def grabCam(detection,forehead_img, mouth_img):
 
     mouth_intensity, forehead_intensity = 0,0
 
-    if(type(mouth_img) != int):
+    if(len(mouth_img) > 0):
         mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
 
         mouth_rowSum = np.sum(mouth_gray, axis=0)
@@ -220,7 +267,7 @@ def grabCam(detection,forehead_img, mouth_img):
         mouth_allSum = mouth_rowSum + mouth_colSum
         mouth_intensity = np.median(np.median(mouth_allSum))
 
-    if(type(forehead_img) != int):
+    if(len(forehead_img) > 0):
         forehead_gray = cv2.cvtColor(forehead_img, cv2.COLOR_BGR2GRAY)
 
         forehead_rowSum = np.sum(forehead_gray, axis=0)
@@ -230,7 +277,7 @@ def grabCam(detection,forehead_img, mouth_img):
 
     cv2.imshow('camera', frame)
     print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
-    return frame, forehead_intensity, mouth_intensity
+    return frame, forehead_intensity, mouth_intensity, forehead_img, mouth_img
 
 def grabCam2():
     success, img = cap.read()
@@ -297,7 +344,7 @@ def grabCam2():
 
     cv2.imshow("Image", img)
     print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
-    return img, forehead_intensity, mouth_intensity
+    return img, forehead_intensity, mouth_intensity, forehead_img, mouth_img
 
 
 now = datetime.now()
@@ -362,7 +409,7 @@ camBPMPlot2.getAxis('top').setStyle(showValues=False)
 camBPMPlot2.setLabel('right','Cam BPM mouth')
 
 # Se usa linspace en lugar de arange debido a errores de espaciado
-t = np.linspace(start=0,stop=5.0,num=50)
+t = np.linspace(start=0, stop=5.0, num=50)
 
 camCurve = camPlot.plot(t, camData, pen=camPen,name="Camera")
 camPlot.setLabel('left','Cam Signal')
