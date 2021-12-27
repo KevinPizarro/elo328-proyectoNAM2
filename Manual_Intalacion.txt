@@ -6,6 +6,13 @@ Para este proyecto se recomienda tener instalado Python3
 
 Instalar las siguientes bibliotecas para python:
 
+DateTime: https://pypi.org/project/DateTime/
+		  pip install DateTime 
+
+pyqtgraph: https://pyqtgraph.readthedocs.io/en/latest/installation.html
+		   pip install pyqtgraph
+		   conda install pyqtgraph
+
 heartpy: https://python-heart-rate-analysis-toolkit.readthedocs.io/en/latest/quickstart.html#installation
 	python -m pip install heartpy
 
@@ -19,16 +26,47 @@ openCV (conocido como cv2): https://www.delftstack.com/es/howto/python/conda-ins
 
 scikit-learn: https://anaconda.org/anaconda/scikit-learn (dependiedno del sistema operativo)
 	conda install -c anaconda scikit-learn
+	pip install sklearn
 	
 cvzone: https://pypi.org/project/cvzone/
 	pip install cvzone
 
 mediapipe: https://pypi.org/project/mediapipe/
 	pip install mediapipe --user
-	
+
 El resto de las librerias deberian ser clasicas, es decir; descargadas al momento en que instalo python3.
 En el caso que suceda que no encuentra alguna biblioteca, de preferencia buscar "conda install biblioteca"
 y en segundo caso recurrir a "pip install biblioteca".
+
+Para ejecutar la PPG, lo que debemos tener es en la misma carpeta los siguientes archivos:
+	haarcascade_frontalface_default.xml
+	haarcascade_mcs_mouth.xml
+	haarcascade_righteye_2splits.xml
+	mouth.xml
+	ppg_fft.py
+	
+	Para ejecutar el programa, se debe tener en la misma carpeta que se tienen los archivos anteriores, los 
+	archivos correspondientes a los videos, se recomienda usar formato mp4, debido a que los archivos .mov 
+	traen problemas al funcionamiento correcto del programa, esto debido a su alta calidad y peso lo cual
+	retrasa la ejecución y procesamiento de imagenes para obtener las curvas. El formato de ejecución del 
+	programa debe ser de la siguiente forma:
+	
+		python '.\ppg_fft.py' "nombre del video.mp4" 
+
+	Donde "nombre del video.mp4" corresponde al nombre del video acompañado del formato en el que está (mp4 en este caso).
+	En caso de que se quiera usar la cámara del computador, entonces se utilizará la siguiente linea de código:
+
+		python '.\ppg_fft.py' "0"
+	
+	Dentro del programa el "0" hace que se active la cámara.
+
+	El programa se termina cerrando la ventana donde se ven los gráficos que calculan los bpm. 
+	Al cerrar el programa se obtiene un archivo csv el cual tiene todos los datos de la ejecución del programa,
+	el cual al sacar el promedio de todos los bpm que no sean 0 se logra obtener los bpm de la persona, esto 
+	para el caso de la boca o de la frente que aparecen especificados en el csv.
+		
+	
+
 
 Para ejecutar de la opcion 2 ROI MANO, se recomienda tener una carpeta que incluya los siguientes archivos:
 	FormacionData.py
