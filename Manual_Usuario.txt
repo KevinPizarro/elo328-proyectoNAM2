@@ -1,0 +1,22 @@
+Manual de Usario
+
+Debe haber realizado la correcta instalacion segun lo dicta el archivo "Manual_Instalacion.py".
+
+Ejecucion del programa opcion 2 ROI MANO:
+Una vez realizado ello debe cerciorarse que se encuentren los siguientes archivos en la carpeta:
+	FormacionData.py
+	NAM2_o2_vX.py //donde x se indica la version del proyecto que se esta utilizando
+	spaO2_dataset.csv
+
+Antes de ejecutar el programa se le recomienda abrir el archivo NAM2_o2_vX.py y modificar lo siguiente segun necesidad:
+	Linea 29 PATH = "directorio en el que trabajara" //se recomienda dejarlo como "."
+	Linea 32 CAM_NUMBER = Numero con el que se identifica la camara (si esque no utilizada un video) suele ser la 0.
+						  En el caso de utilizar un video ya grabado, dejar esta variable como el PATH al video segun
+						  segun el siguiente ejemplo: "./videos/video001.mp4"
+
+Ya realizado lo anterior puede ejecutar el programa con la linea siguiente en una consola de comandos:
+	python NAM2_o2_vX.py
+En el caso de ejecutar en Spyder (IDE de Anaconda) es suficiente con abrir el codigo y apretar en la flecha play.
+	
+El programa necesita que mantenga UNA mano arriba, y se recomienda tener UNA sola mano en camara,
+tratando de no estar a mas de 1.5 metros de esta, por temas de resolucion y por la busqueda de regiones de interes. 

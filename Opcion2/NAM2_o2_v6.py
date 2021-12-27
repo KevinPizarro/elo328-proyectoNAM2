@@ -98,7 +98,7 @@ def POS2(R_v,G_v,B_v):
     if( not np.isnan(measures['breathingrate']) ):
         BPM = measures['breathingrate']*60
         #print('breathing rate is: %s Hz\n' %measures['breathingrate'])
-    return BPM
+    return BPM/4
 
 # funcion que me entrena el modelo del SVR creando el modelo regressor (H4.7)
 def creat_SVR_FUNCTION():

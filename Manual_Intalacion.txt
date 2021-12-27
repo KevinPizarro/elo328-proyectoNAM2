@@ -1,0 +1,39 @@
+Manual de Instalacion
+
+Para este proyecto se recomienda tener instalado Python3
+(la forma mas simple es con Anaconda como se observa en el video)
+	https://www.youtube.com/watch?v=OmmklYlRGzo
+
+Instalar las siguientes bibliotecas para python:
+
+heartpy: https://python-heart-rate-analysis-toolkit.readthedocs.io/en/latest/quickstart.html#installation
+	python -m pip install heartpy
+
+numpy: https://numpy.org/install/
+	conda install numpy
+	pip install numpy
+
+openCV (conocido como cv2): https://www.delftstack.com/es/howto/python/conda-install-cv2/
+	conda install opencv
+	pip install opencv-python
+
+scikit-learn: https://anaconda.org/anaconda/scikit-learn (dependiedno del sistema operativo)
+	conda install -c anaconda scikit-learn
+	
+cvzone: https://pypi.org/project/cvzone/
+	pip install cvzone
+
+mediapipe: https://pypi.org/project/mediapipe/
+	pip install mediapipe --user
+	
+El resto de las librerias deberian ser clasicas, es decir; descargadas al momento en que instalo python3.
+En el caso que suceda que no encuentra alguna biblioteca, de preferencia buscar "conda install biblioteca"
+y en segundo caso recurrir a "pip install biblioteca".
+
+Para ejecutar de la opcion 2 ROI MANO, se recomienda tener una carpeta que incluya los siguientes archivos:
+	FormacionData.py
+	NAM2_o2_vX.py //donde x se indica la version del proyecto que se esta utilizando
+	spaO2_dataset.csv
+
+	La linea de ejecucion del programa es la siguiente:
+		python NAM2_o2_vX.py
