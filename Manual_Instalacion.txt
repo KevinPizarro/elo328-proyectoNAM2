@@ -65,7 +65,26 @@ Para ejecutar la PPG, lo que debemos tener es en la misma carpeta los siguientes
 		python '.\ppg_fft.py' "0"
 	
 	Dentro del programa el "0" hace que se active la cámara.
-		
+
+Para ejecutar la spO2 en PPG, lo que debemos tener es en la misma carpeta los siguientes archivos:
+	mouth.xml
+	spO2.py
+	ROI.py
+	
+	Para ejecutar el programa, se debe tener en la misma carpeta que se tienen los archivos anteriores, los 
+	archivos correspondientes a los videos, se recomienda usar formato mp4, debido a que los archivos .mov 
+	traen problemas al funcionamiento correcto del programa, esto debido a su alta calidad y peso lo cual
+	retrasa la ejecución y procesamiento de imagenes para obtner las matrices BGR. El formato de ejecución del 
+	programa debe ser de la siguiente forma:
+	
+		python '.\ROI.py' "nombre del video.mp4" 
+
+	Donde "nombre del video.mp4" corresponde al nombre del video acompañado del formato en el que está (mp4 en este caso).
+	En caso de que se quiera usar la cámara del computador, entonces se utilizará la siguiente linea de código:
+
+		python '.\ROI.py' "0"
+	
+	Dentro del programa el "0" hace que se active la cámara.
 	
 
 
