@@ -54,3 +54,5 @@ En el caso de ejecutar en Spyder (IDE de Anaconda) es suficiente con abrir el co
 	
 El programa necesita que mantenga UNA mano arriba, y se recomienda tener UNA sola mano en camara,
 tratando de no estar a mas de 1.5 metros de esta, por temas de resolucion y por la busqueda de regiones de interes. 
+
+Para finalizar el programa se necesita apretar "q" sobre la ventana que muestra el video.

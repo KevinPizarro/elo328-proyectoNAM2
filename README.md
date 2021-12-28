@@ -24,7 +24,7 @@ Proyecto NAM Longevidad Adulto Mayor 2: Análisis de técnicas de monitoreo de R
 	- Trabajo realizado por Johanny Espinoza, Victor Cortés y Rudolf Hartmann.
 
 # Opcion 2 : Obtencion de la curva de respiracion y saturacion de oxigeno a traves de rPPG y SVR - ROI Mano
-	- Lo primero es obtener la region de interes en la mano, se plantea dejar la mano en un espacio en especifico delimitado.
+	- Lo primero es obtener la region de interes en la mano, se automatiza la deteccion de la mano.
 	  Se le aplica segmentacion por treshholding a traves de Otsu y luego se extrae el valor promedio de cada canal RGB de la ROI.
 	- Calculo de la saturacion de oxigeno a traves de ventanas de tiempo de 50 datos, a traves del metodo de RoR a partir de los canal RB
 	- Se calcula el breathing rate en BPM a partir de la formación de pulso usando el algoritmo POS y ocupando la biblioteca HeartPy.
