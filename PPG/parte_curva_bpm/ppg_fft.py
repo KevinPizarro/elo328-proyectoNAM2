@@ -95,7 +95,7 @@ def update():
 
     # se toma la dara
     image, signal, signal2, forehead_img, mouth_img = grabCam() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
-    # image, signal, signal2 = grabCam2() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
+    #image, signal, signal2, forehead_img, mouth_img = grabCam2() ##se tiene  la imagen en escala de grises y el promedio de las intensidades del brillo de la imagen
     count += 1
 
     ## Se empieza el algoritmo para calcular la saturacion de oxigeno
@@ -115,17 +115,17 @@ def update():
         # print(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
         if(FAC_R > 0):
             Fsat = spO2.SVR_PREDICT(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
-            print('La saturacion de Oxigeno en la sangre segun la medicion de la frente es: ', Fsat)
+            #print('La saturacion de Oxigeno en la sangre segun la medicion de la frente es: ', Fsat)
 
 
         if(MAC_R > 0):
             Msat = spO2.SVR_PREDICT(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
-            print('La saturacion de Oxigeno en la sangre segun la medicion de la boca es: ', Msat)
+            #print('La saturacion de Oxigeno en la sangre segun la medicion de la boca es: ', Msat)
 
         count = 0
     
 
-    print('El valor de signal es: %s bpm' %signal)
+    #print('El valor de signal es: %s bpm' %signal)
     
     ### heartpy
     cam_bpm = camBPMData[-1] ##guarda el último valor de camBPMData
@@ -149,7 +149,8 @@ def update():
         working_data, measures = hp.process(camSig, 10.0) ##ocupa la libreria de hearthpy la cual hace el procesamiento de la fft a la imagen recibida
         ###print('breathing rate is: %s bpm' %measures['bpm'])
     except BadSignalWarning:
-        print("Mala señal")## en caso de que falle el hp.process()
+        pass
+        #print("Mala señal")## en caso de que falle el hp.process()
     else:
         if(measures['bpm'] > 40 and measures['bpm'] < 120):
             cam_bpm = measures['bpm']
@@ -159,7 +160,8 @@ def update():
     try:
         working_data, measures2 = hp.process(camSig2, 10.0) 
     except BadSignalWarning:
-        print("Mala señal")
+        pass    
+        #print("Mala señal")
     else:
         if(measures2['bpm'] > 40 and measures2['bpm'] < 120):
             cam_bpm2 = measures2['bpm']
@@ -207,7 +209,7 @@ def update():
     camBPMCurve2.setData(camBPMData2)
     camBPMCurve2.setPos(ptr, 0)
 
-    print(t[-1])
+    #print(t[-1])
 
 
 
@@ -276,7 +278,7 @@ def grabCam():
         forehead_intensity = np.median(np.median(forehead_allSum))
 
     cv2.imshow('camera', frame)
-    print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
+    #print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
     return frame, forehead_intensity, mouth_intensity, forehead_img, mouth_img
 
 def grabCam2():
@@ -343,7 +345,7 @@ def grabCam2():
         forehead_intensity = np.median(np.median(forehead_allSum))
 
     cv2.imshow("Image", img)
-    print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
+    #print("los valores para mouth y forehead son: %f y %f respectivamente" %(mouth_intensity, forehead_intensity))
     return img, forehead_intensity, mouth_intensity, forehead_img, mouth_img
 
 
