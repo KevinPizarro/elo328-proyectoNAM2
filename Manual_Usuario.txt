@@ -56,3 +56,24 @@ El programa necesita que mantenga UNA mano arriba, y se recomienda tener UNA sol
 tratando de no estar a mas de 1.5 metros de esta, por temas de resolucion y por la busqueda de regiones de interes. 
 
 Para finalizar el programa se necesita apretar "q" sobre la ventana que muestra el video.
+
+Ejecución del la interfaz:
+Para ejecutar la interfaz se requiere verificar que se encuentren los siguientes archivos en la carpeta:
+	BotonPPG.png
+	BotonSVR.png
+	Interfaz.py
+	boton1.png
+	cerrar.png
+	detener.png
+	fondo7.png
+	fondomedio22.png
+	fondoppg.png
+	fondosvr.pmg
+	holamundo.py
+	logo.png
+	menu.png
+
+	Posteriormente el archivo holamundo.py deberá ser eliminado, además se deberá agregar los archivos NAM_o2._vX.py, ppg_fft.py, spO2.py,FormacionDara.py y spaO2_dataset.csv. En un futuro estos serán implementados dentro de la interfaz.
+	
+	Para ejecutar el programa se puede realizar en la consola de la siguiente manera:
+		python Interfaz.py	
