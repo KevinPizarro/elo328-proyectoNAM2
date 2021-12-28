@@ -1,38 +1,63 @@
 Manual de Usario
 
-Debe haber realizado la correcta instalacion segun lo dicta el archivo "Manual_Instalacion.py".
+Debe haber realizado la correcta instalacion segun lo dicta el archivo "Manual_Instalacion.txt".
 
 
 Ejecucion del programa ppg parte_curva_bpm:
 
 Para ejecutar el programa, se debe tener en la misma carpeta que se tienen los archivos anteriores, los 
-	archivos correspondientes a los videos, se recomienda usar formato mp4, debido a que los archivos .mov 
-	traen problemas al funcionamiento correcto del programa, esto debido a su alta calidad y peso lo cual
-	retrasa la ejecución y procesamiento de imagenes para obtener las curvas. El formato de ejecución del 
-	programa debe ser de la siguiente forma:
-	
-		python '.\ppg_fft.py' "nombre del video.mp4" 
+archivos correspondientes a los videos, se recomienda usar formato mp4, debido a que los archivos .mov 
+traen problemas al funcionamiento correcto del programa, esto debido a su alta calidad y peso lo cual
+retrasa la ejecución y procesamiento de imagenes para obtener las curvas. El formato de ejecución del 
+programa debe ser de la siguiente forma:
 
-	Donde "nombre del video.mp4" corresponde al nombre del video acompañado del formato en el que está (mp4 en este caso).
-	En caso de que se quiera usar la cámara del computador, entonces se utilizará la siguiente linea de código:
+	python '.\ppg_fft.py' "nombre del video.mp4" 
 
-		python '.\ppg_fft.py' "0"
-	
-	Dentro del programa el "0" hace que se active la cámara.
+Donde "nombre del video.mp4" corresponde al nombre del video acompañado del formato en el que está (mp4 en este caso).
+En caso de que se quiera usar la cámara del computador, entonces se utilizará la siguiente linea de código:
 
-	El programa se termina cerrando la ventana donde se ven los gráficos que calculan los bpm. 
-	Al cerrar el programa se obtiene un archivo csv el cual tiene todos los datos de la ejecución del programa,
-	el cual al sacar el promedio de todos los bpm que no sean 0 se logra obtener los bpm de la persona, esto 
-	para el caso de la boca o de la frente que aparecen especificados en el csv.
+	python '.\ppg_fft.py' "0"
 
-	Como puntos a tomar en cuenta al momento de grabar un video que se vaya a utilizar, primero no se debe tener un
-	foco de luz muy intenso apuntando al rostro, esto debido a que vamos a calcular los bpm dependiendo de los
-	valores que obtengamos de la cara del paciente a revisar, otro punto a tomar en cuenta es que mientras menos 
-	distracciones dentro del entorno a grabar, será mejor para el análisis, esto debido a que el algoritmo de 
-	reconocimiento facial va a poder funcionar de mejor forma. Al momento de mirar, la idea es que la cara esté 
-	lo máds frontal posible a la camara y se debe tratar de no hacer tantos gestos faciales con el fin de poder 
-	obtener un resultado lo más eficiente posible. Todo lo anteriormente dicho también debe ser aplicable en caso
-	de no ingresar un video sino que usando la cámara del computador.
+Dentro del programa el "0" hace que se active la cámara.
+
+El programa se termina cerrando la ventana donde se ven los gráficos que calculan los bpm. 
+Al cerrar el programa se obtiene un archivo csv el cual tiene todos los datos de la ejecución del programa,
+el cual al sacar el promedio de todos los bpm que no sean 0 se logra obtener los bpm de la persona, esto 
+para el caso de la boca o de la frente que aparecen especificados en el csv.
+
+Como puntos a tomar en cuenta al momento de grabar un video que se vaya a utilizar, primero no se debe tener un
+foco de luz muy intenso apuntando al rostro, esto debido a que vamos a calcular los bpm dependiendo de los
+valores que obtengamos de la cara del paciente a revisar, otro punto a tomar en cuenta es que mientras menos 
+distracciones dentro del entorno a grabar, será mejor para el análisis, esto debido a que el algoritmo de 
+reconocimiento facial va a poder funcionar de mejor forma. Al momento de mirar, la idea es que la cara esté 
+lo más frontal posible a la camara y se debe tratar de no hacer tantos gestos faciales con el fin de poder 
+obtener un resultado lo más eficiente posible. Todo lo anteriormente dicho también debe ser aplicable en caso
+de no ingresar un video sino que usando la cámara del computador.
+
+
+
+Ejecucion del programa ppg parte_spO2:
+
+Para ejecutar el programa, se debe tener en la misma carpeta que se tienen los archivos anteriores, los 
+archivos correspondientes a los videos, se recomienda usar formato mp4, debido a que los archivos .mov 
+traen problemas al funcionamiento correcto del programa, esto debido a su alta calidad y peso lo cual
+retrasa la ejecución y procesamiento de imagenes para obtener las curvas. El formato de ejecución del 
+programa debe ser de la siguiente forma:
+
+	python '.\ROI.py' "nombre del video.mp4" 
+
+Donde "nombre del video.mp4" corresponde al nombre del video acompañado del formato en el que está (mp4 en este caso).
+En caso de que se quiera usar la cámara del computador, entonces se utilizará la siguiente linea de código:
+
+	python '.\ROI.py' "0"
+
+Dentro del programa el "0" hace que se active la cámara.
+
+El programa se termina apretando la tecla "q" de nuestro teclado. 
+
+Como puntos a tomar en cuenta al momento de grabar un video que se vaya a utilizar, primero no se debe tener un foco de luz apuntando de frente al rostro, también evitar el uso de maquillajes y objetos que cubran la cara, esto debido a que vamos a calcular los la saturación de oxigeno dependiendo de los valores que obtengamos de la cara del paciente a revisar, otro punto a tomar en cuenta es que mientras menos  distracciones dentro del entorno a grabar, será mejor para el análisis, esto debido a que el algoritmo de  reconocimiento facial va a poder funcionar de mejor forma. Al momento de mirar, la idea es que la cara esté  lo más frontal posible a la camara y se debe tratar de no hacer tantos gestos faciales con el fin de poder obtener un resultado lo más eficiente posible. 
+
+Todo lo anteriormente dicho también debe ser aplicable en caso de no ingresar un video sino que usando la cámara del computador.
 
 
 
