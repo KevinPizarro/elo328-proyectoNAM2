@@ -34,6 +34,12 @@ cvzone: https://pypi.org/project/cvzone/
 mediapipe: https://pypi.org/project/mediapipe/
 	pip install mediapipe --user
 
+Tk: https://www.tutorialspoint.com/how-to-install-tkinter-in-python
+	pip install tk
+
+PIL: https://pypi.org/project/Pillow/
+	pip install Pillow
+
 El resto de las librerias deberian ser clásicas, es decir; descargadas al momento en que instaló python3.
 En el caso que suceda que no encuentra alguna biblioteca, de preferencia buscar "conda install biblioteca"
 y en segundo caso recurrir a "pip install biblioteca".
@@ -70,3 +76,22 @@ Para ejecutar de la opción 2 ROI MANO, se recomienda tener una carpeta que incl
 
 	La linea de ejecucion del programa es la siguiente:
 		python NAM2_o2_vX.py
+
+Para ejecutar la interfaz, se recomienda tener una carpeta que incluya los siguientes archivos:
+	BotonPPG.png
+	BotonSVR.png
+	Interfaz.py
+	boton1.png
+	cerrar.png
+	detener.png
+	fondo7.png
+	fondomedio22.png
+	fondoppg.png
+	fondosvr.pmg
+	holamundo.py
+	logo.png
+	menu.png
+	
+	La linea de ejecución del programa es la siguiente:
+		python Interfaz.py
+
