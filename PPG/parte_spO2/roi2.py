@@ -2,8 +2,22 @@ from cvzone.FaceDetectionModule import FaceDetector
 import cv2
 import numpy as np
 import spO2 
+import sys
 
 cap = cv2.VideoCapture(0)
+# cap = cv2.VideoCapture('./Video 004a V.Trujillo.mp4')
+# cap = cv2.VideoCapture('./Video 009c M.CUBILLOS.mp4')
+# cap = cv2.VideoCapture('./Video 014a E.Trujillo.mp4')
+# cap = cv2.VideoCapture('./Video 003 G.Trujillo.MOV')
+### Acceso a la cámara
+if (sys.argv[1]=="0"):
+    capture = cv2.VideoCapture(0)
+else:
+    cap = cv2.VideoCapture(sys.argv[1])
+
+
+
+
 detector = FaceDetector()
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_righteye_2splits.xml')
 
@@ -30,8 +44,6 @@ def grabCam():
 
 
     if bboxs:
-        # bboxInfo - "id","bbox","score","center"
-        # print(bboxs)
         center = bboxs[0]["center"]
         cv2.circle(img, center, 5, (255, 0, 255), cv2.FILLED)
     
@@ -56,13 +68,13 @@ def grabCam():
                         izq = exx+eww
                         ey = eyy
 
-            # cv2.rectangle(img, (exx,eyy), (exx+eww,eyy+ehh), (0,255,0), 2)
         if (izq > 0):
             cv2.rectangle(img, (ex,y), (izq,ey), (0,255,0), 2)
             forehead_img = img[y:y+ey, x+ex:x+izq].copy() 
         
         # Se aplica el reconociento de boca dentro del cuadro del rostro.
         mouth = mouth_cascade.detectMultiScale(img, 1.1, 20)
+
         ## Se elimina el reconocimiento de bocas sobre la mitad superior de la cara.
         for (mx,my,mw,mh) in mouth:
             if my > cy:
@@ -70,28 +82,9 @@ def grabCam():
                     cv2.rectangle(img, (mx,my), (mx+mw,my+mh), (255,255,0), 2)
                     mouth_img = img[my:my+mh, mx:mx+mw].copy() 
 
-    # print(len(forehead_img), len(mouth_img))
-
-    # if(len(mouth_img) > 0):
-    #     mouth_gray= cv2.cvtColor(mouth_img, cv2.COLOR_BGR2GRAY)
-
-    #     mouth_rowSum = np.sum(mouth_gray, axis=0)
-    #     mouth_colSum = np.sum(mouth_rowSum, axis=0)
-    #     mouth_allSum = mouth_rowSum + mouth_colSum
-    #     mouth_intensity = np.median(np.median(mouth_allSum))
-
-    # if(len(forehead_img) > 0):
-    #     forehead_gray = cv2.cvtColor(forehead_img, cv2.COLOR_BGR2GRAY)
-
-    #     forehead_rowSum = np.sum(forehead_gray, axis=0)
-    #     forehead_colSum = np.sum(forehead_rowSum, axis=0)
-    #     forehead_allSum = forehead_rowSum + forehead_colSum
-    #     forehead_intensity = np.median(np.median(forehead_allSum))
-
     cv2.imshow("Image", img)
 
     return img, forehead_img, mouth_img
-    # return img, forehead_intensity, mouth_intensity
 
 
 while True:
@@ -108,16 +101,13 @@ while True:
         MDC_R, MDC_G, MDC_B = spO2.DC_Calculation(MP_b, MP_g, MP_r, MDC_R, MDC_G, MDC_B, count)
     
     if (count == 50):
-        
-        # print(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
-        # print(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
         if(FAC_R > 0):
             Fsat = spO2.SVR_PREDICT(FAC_R, FAC_G, FAC_B, FDC_R, FDC_G, FDC_B, regressor)
-            print(Fsat)
+            print('spO2 Frente: ', Fsat)
 
         if(MAC_R > 0):
             Msat = spO2.SVR_PREDICT(MAC_R, MAC_G, MAC_B, MDC_R, MDC_G, MDC_B, regressor)
-            print(Msat)
+            print('spO2 Boca: ', Msat)
 
         count = 0
 
